@@ -263,6 +263,11 @@ install_cross_toolchain() {
     local cross_cfg_data=$(_crossdev_info "${cross_flags[@]}")
     local emerge_flags=( "$@" --binpkg-respect-use=y --update --newuse )
 
+    # HACK: Force cross gcc-4.9.2 for arm64.
+    if [[ -z ${FLAGS_toolchain_boards#arm64-usr} ]]; then
+        cross_flags+=( --gcc "=4.9.2" )
+    fi
+
     # Forcing binary packages for toolchain packages breaks crossdev since it
     # prevents it from rebuilding with different use flags during bootstrap.
     local safe_flags=( "${@/#--useoldpkg-atoms=*/}" )
