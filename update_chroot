@@ -83,6 +83,10 @@ MAKEOPTS="--jobs=${NUM_JOBS} --load-average=$((NUM_JOBS * 2))"
 # You can use --select to override this.
 EMERGE_DEFAULT_OPTS="--oneshot"
 
+# Disable build-id to avoid file collisions.
+# https://bugs.gentoo.org/show_bug.cgi?id=526144
+LDFLAGS="${LDFLAGS} -Wl,--build-id=none"
+
 # Allow the user to override or define additional settings.
 source "/etc/portage/make.conf.user"
 EOF
