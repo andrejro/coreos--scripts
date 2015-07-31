@@ -992,3 +992,17 @@ BOAT
   echo -e "${V_VIDOFF}"
   die "$* failed"
 }
+
+setup_qemu_static() {
+  local root_fs_dir="$1"
+  if [[ ${BOARD} == "arm64-usr" && -f "${root_fs_dir}/sbin/ldconfig" ]]; then
+    sudo cp /usr/bin/qemu-aarch64 "${root_fs_dir}"/usr/bin/qemu-aarch64-static
+  fi
+}
+
+clean_qemu_static() {
+  local root_fs_dir="$1"
+  if [[ ${BOARD} == "arm64-usr" && -f "${root_fs_dir}/usr/bin/qemu-aarch64-static" ]]; then
+    sudo rm "${root_fs_dir}"/usr/bin/qemu-aarch64-static
+  fi
+}

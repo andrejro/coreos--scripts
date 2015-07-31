@@ -29,7 +29,7 @@ set_build_symlinks() {
 }
 
 cleanup_mounts() {
-  if [ -n ${KEEP_THOSE_MOUNTS} ]; then
+  if [[ -n ${KEEP_THOSE_MOUNTS} ]]; then
     echo "Keeping mounts"
   else
     echo "Cleaning up mounts"
@@ -107,13 +107,21 @@ emerge_to_image() {
       PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
       emerge --root-deps=rdeps --usepkgonly --jobs=$FLAGS_jobs -v "$@"
 
+  setup_qemu_static "${root_fs_dir}"
   # Make sure profile.env and ld.so.cache has been generated
-  sudo -E ROOT="${root_fs_dir}" env-update
-
-  # TODO(marineam): just call ${BUILD_LIBRARY_DIR}/check_root directly once
-  # all tests are fatal, for now let the old function skip soname errors.
-  ROOT="${root_fs_dir}" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
-      test_image_content "${root_fs_dir}"
+  # In case of target image is of different architecture we can
+  # not run env-update, use chrooted ldconfig instead
+  if [[ -f "${root_fs_dir}/usr/bin/qemu-aarch64-static" ]]; then
+    # FIXME: setup also profile.env
+    sudo chroot "${root_fs_dir}" ldconfig
+  else
+    sudo -E ROOT="${root_fs_dir}" env-update
+    # TODO(marineam): just call ${BUILD_LIBRARY_DIR}/check_root directly once
+    # all tests are fatal, for now let the old function skip soname errors.
+    ROOT="${root_fs_dir}" PORTAGE_CONFIGROOT="${BUILD_DIR}"/configroot \
+        test_image_content "${root_fs_dir}"
+  fi
+  clean_qemu_static "${root_fs_dir}"
 }
 
 # Switch to the dev or prod sub-profile
@@ -350,7 +358,7 @@ finish_image() {
   # This script must mount the ESP partition differently, so run it after unmount
   if [[ "${install_grub}" -eq 1 ]]; then
     local target
-    for target in i386-pc x86_64-efi x86_64-xen; do
+    for target in i386-pc x86_64-efi x86_64-xen arm64-efi; do
       if [[ "${PROD_IMAGE}" -eq 1 && ${FLAGS_enable_verity} -eq ${FLAGS_TRUE} ]]; then
         ${BUILD_LIBRARY_DIR}/grub_install.sh \
             --target="${target}" --disk_image="${disk_img}" --verity

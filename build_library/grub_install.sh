@@ -49,6 +49,10 @@ case "${FLAGS_target}" in
     x86_64-xen)
         CORE_NAME="core.elf"
         ;;
+    arm64-efi)
+	CORE_MODULES+=( serial efi_gop )
+        CORE_NAME="core-arm64.efi"
+        ;;
     *)
         die_notrace "Unknown GRUB target ${FLAGS_target}"
         ;;
@@ -183,6 +187,26 @@ case "${FLAGS_target}" in
             sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
                 "${ESP_DIR}/EFI/boot/bootx64.efi"
 	fi
+        ;;
+    arm64-efi)
+        info "Installing default arm64 UEFI bootloader."
+        sudo mkdir -p "${ESP_DIR}/EFI/boot"
+	#FIXME(andrejro): shim not ported to aarch64
+        # Use the test keys for signing unofficial builds
+#        if [[ ${COREOS_OFFICIAL:-0} -ne 1 ]]; then
+#           sudo sbsign --key /usr/share/sb_keys/DB.key \
+#                --cert /usr/share/sb_keys/DB.crt \
+#                    "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}"
+#            sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}.signed" \
+#                "${ESP_DIR}/EFI/boot/grub.efi"
+#            sudo sbsign --key /usr/share/sb_keys/DB.key \
+#                 --cert /usr/share/sb_keys/DB.crt \
+#                 --output "${ESP_DIR}/EFI/boot/bootaa64.efi" \
+#                 "/usr/lib/shim/shim.efi"
+#        else
+            sudo cp "${ESP_DIR}/${GRUB_DIR}/${CORE_NAME}" \
+                "${ESP_DIR}/EFI/boot/bootaa64.efi"
+#        fi
         ;;
     x86_64-xen)
         info "Installing default x86_64 Xen bootloader."
