@@ -156,7 +156,7 @@ if [ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_TRUE}" ]; then
   UPDATE_ARGS+=" --skip_toolchain_update"
 fi
 if [[ "${BOARD}" == "arm64-usr" ]]; then
-   [[ ! -f /etc/portage/package.use ]] || sudo mkdir /etc/portage/package.use
+   [[ ! -d /etc/portage/package.use ]] && sudo mkdir /etc/portage/package.use
    sudo_clobber "/etc/portage/package.use/grub" <<EOF
 sys-boot/grub grub_platforms_arm64
 EOF
