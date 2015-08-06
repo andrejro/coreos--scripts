@@ -281,6 +281,12 @@ finish_image() {
   sudo cp "${root_fs_dir}/usr/boot/vmlinuz" \
        "${root_fs_dir}/boot/coreos/vmlinuz-a"
 
+  # Copy devicetree blob if one exists
+  if [[ -h "${root_fs_dir}/usr/boot/devicetree" ]]; then
+      sudo cp "${root_fs_dir}/usr/boot/devicetree" \
+              "${root_fs_dir}/boot/coreos/devicetree"
+  fi
+
   # Record directories installed to the state partition.
   # Explicitly ignore entries covered by existing configs.
   local tmp_ignore=$(awk '/^[dDfFL]/ {print "--ignore=" $2}' \
