@@ -231,7 +231,7 @@ if [[ ${BOARD} == "arm64-usr" ]]; then
     sudo chroot "${BOARD_ROOT}" ldconfig
     # FIXME: "Unsupported ioctl: cmd=0x40049409" warning
     sudo ${BOARD_ROOT}/usr/sbin/update-bootengine -m -c ${BOARD_ROOT}
-    #sudo -E "${EMERGE_CMD[@]}" coreos-kernel
+    sudo -E "${EMERGE_CMD[@]}" hikey-kernel
 fi
 
 info "Removing obsolete packages"
